@@ -143,6 +143,10 @@ oxygen_evol<-function(fluorwin_filename, firesting_filename, no_light_steps, tim
   f.times$voltage<-voltages$voltage
   f.times$par<-voltages$par
 
+  #add a column of fluorwin output data filename into f.times for traceability.
+  f.nam<-strsplit(fluorwin_filename, split='[.]')[[1]][1]
+  f.times$fluorwin_filename<-f.nam
+
   ###############read in optode data, tidy up data frame, match to F data
   m1<-read.table(firesting_filename,skip=13,header=T,sep="\t")
 
@@ -171,7 +175,7 @@ oxygen_evol<-function(fluorwin_filename, firesting_filename, no_light_steps, tim
 
     my.lm<-lm(y~x)
 
-    f.times$slope[i]<-summary(my.lm)$coefficients[2,1]*60 #this is umol O2 per minute.
+    f.times$slope[i]<-summary(my.lm)$coefficients[2,1] #this is umol O2 per sec
     f.times$r.sq[i]<-round(summary(my.lm)$r.squared,3)
     f.times$p.val[i]<-summary(my.lm)$coefficients[2,4]
   }#end of i loop
@@ -217,10 +221,16 @@ oxygen_evol<-function(fluorwin_filename, firesting_filename, no_light_steps, tim
   }#end of i loop
 
 
-  #make plot of the oxygen data (slope) ~ light step
-  par(mar=c(3,3,1,1), mgp=c(1.6,0.4,0), tck=-0.01, las=1, xpd=F)
-  plot(f.times$light_step, f.times$slope, type='p', pch=19, ylab=expression(paste('Oxygen Evolution ( ',mu,'mol ',O[2],' ',l^-1,' ',s^-1,')')), xlab='Light Step')
+  #make plot of the oxygen data (slope) ~ light step, with PAR in background as
+  #blue trace
+  par(mar=c(3,3,1,3), mgp=c(1.6,0.4,0), tck=-0.01, las=1, xpd=F)
+  plot(f.times$light_step, f.times$slope, type='o', pch=19, ylab=expression(paste('Oxygen Evolution ( ',mu,'mol ',O[2],' ',l^-1,' ',s^-1,')')), xlab='Light Step', xlim=c(0,11))
   arrows(0,0,nrow(f.times)+1,0,length=0, lty=3)
+  par(new=T)
+  plot(f.times$light_step+0.11, f.times$par, type='S', lwd=4, col=addTrans('blue',50),yaxt='n', ylab='',xlab='', xaxt='n', cex.axis=0.8, xlim=c(0,11))
+  axis(4, cex.axis=0.8)
+  text(nrow(f.times)*1.11, (max(f.times$par)-(max(f.times$par)/2)), labels=expression(paste('PAR (',mu,'mol photons ', m^-2,' ',s^-1,')')),xpd=T, srt=-90, cex=1)
+  legend('topleft', pch=c(19,NA), col=c('black',addTrans('blue',50)), lty=1, legend=c('Oxygen Evol', 'PAR'), lwd=c(1,3), bty='n')
 
 
   #plot of oxygen evolution (slope) ~ PAR (NB this is a scatter plot, so if using
@@ -234,8 +244,7 @@ oxygen_evol<-function(fluorwin_filename, firesting_filename, no_light_steps, tim
   #returns list including raw oxygen (processed and tidied fire sting data) and
   #matched_oxygen (FL3500 measurements matched to oxygen slope)
   return(list(raw_oxygen = m1, matched_oxygen = f.times))
-  raw_oxygen<<-m1
-  matched_oxygen<<-f.times
+  assign('oxygen_res', f.times, envir = .GlobalEnv)
 
 }#end of oxygen_evol function
 
