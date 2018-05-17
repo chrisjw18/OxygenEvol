@@ -42,6 +42,9 @@
 #'@param no_light_steps the number of light steps in the curve.
 #'@param time_step length of the window (in seconds) of oxygen data to extract per
 #'    light step.
+#'@param calibration_file flashlet calibration file used to calculate PAR from
+#'    voltages for FL3500 data. Generic calibration file is built into package
+#'    so leave as NA if no specific calibration available.
 #' @return raw_oxygen dataframe containing the tidy outputs from the Firesting
 #'   optode (i.e. complete oxygen trace with formatted time columns).
 #'
@@ -56,11 +59,12 @@
 #'   linear regression for oxygen evolution calculation, iii) calculated oxygen
 #'   evolution ~ light step over the course of the light curve, iv) scatter plot
 #'   of oxygen evolution ~ PAR (if a sequential light curve is used this will
-#'   show the oxygen evolution over the course of the light curve, if a non-sequential
+#'   show the oxygen evolution over the course of the light curve, if a non
+#'   -sequential
 #'   light curve was used this will show the overall relationship).
 #'@export
 
-oxygen_evol<-function(fluorwin_filename, firesting_filename, no_light_steps, time_step){
+oxygen_evol<-function(fluorwin_filename, firesting_filename, no_light_steps, time_step=60, calibration_file=NA){
 
   ###############read in fluorwin .txt output to extract timings
   #of measurements and format them
@@ -96,8 +100,13 @@ oxygen_evol<-function(fluorwin_filename, firesting_filename, no_light_steps, tim
   names(meta.data)<-meta.data.names[2:length(meta.data.names)];
 
 
-  #read in the calibration table
-  cali<-read.csv('PSI_F3500_Calibration.csv')
+  #use generic calibration table or read in calibration if available
+  if(is.na(calibration_file)){
+    cali<-generic_cali
+  } else{
+    cali<-read.csv(calibration_file)
+  }
+
 
   #generate the voltages table and look up PAR using calibration
   blue<-meta.data[1,"Blue_light_curves_enable"]

@@ -4,7 +4,8 @@
 \alias{oxygen_evol}
 \title{oxygen_evol.}
 \usage{
-oxygen_evol(fluorwin_filename, firesting_filename, no_light_steps, time_step)
+oxygen_evol(fluorwin_filename, firesting_filename, no_light_steps,
+  time_step = 60, calibration_file = NA)
 }
 \arguments{
 \item{fluorwin_filename}{name of the fluorwin .txt file to process.}
@@ -15,6 +16,10 @@ oxygen_evol(fluorwin_filename, firesting_filename, no_light_steps, time_step)
 
 \item{time_step}{length of the window (in seconds) of oxygen data to extract per
 light step.}
+
+\item{calibration_file}{flashlet calibration file used to calculate PAR from
+voltages for FL3500 data. Generic calibration file is built into package
+so leave as NA if no specific calibration available.}
 }
 \value{
 raw_oxygen dataframe containing the tidy outputs from the Firesting
@@ -31,7 +36,8 @@ raw_oxygen dataframe containing the tidy outputs from the Firesting
   linear regression for oxygen evolution calculation, iii) calculated oxygen
   evolution ~ light step over the course of the light curve, iv) scatter plot
   of oxygen evolution ~ PAR (if a sequential light curve is used this will
-  show the oxygen evolution over the course of the light curve, if a non-sequential
+  show the oxygen evolution over the course of the light curve, if a non
+  -sequential
   light curve was used this will show the overall relationship).
 }
 \description{
