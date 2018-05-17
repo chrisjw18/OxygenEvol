@@ -225,6 +225,8 @@ oxygen_evol<-function(fluorwin_filename, firesting_filename, no_light_steps, tim
   #returns list including raw oxygen (processed and tidied fire sting data) and
   #matched_oxygen (FL3500 measurements matched to oxygen slope)
   return(list(raw_oxygen = m1, matched_oxygen = f.times))
+  raw_oxygen<<-m1
+  matched_oxygen<<-f.times
 
 }#end of oxygen_evol function
 
