@@ -272,6 +272,7 @@ oxygen_evol<-function(fluorwin_filename, firesting_filename, no_light_steps, tim
   oxy_results$raw_oxygen<-m1
   oxy_results$matched_oxygen<-f.times
   oxy_results<<-oxy_results
+  return(oxy_results)
 
   if(data_output==T){
     nam<-strsplit(firesting_filename, split='[.]')[[1]][1]
