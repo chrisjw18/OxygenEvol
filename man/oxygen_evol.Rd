@@ -43,3 +43,6 @@ raw_oxygen dataframe containing the tidy outputs from the Firesting
 \description{
 extract and match firesting oxygen data to FL3500 PSI fluorescence data.
 }
+\examples{
+oxygen_evol(example_fluorwin_data, example_oxygen_data, no_light_steps=11, time_step=60, calibration_file=NA)
+}

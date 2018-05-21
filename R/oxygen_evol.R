@@ -62,9 +62,11 @@
 #'   show the oxygen evolution over the course of the light curve, if a non
 #'   -sequential
 #'   light curve was used this will show the overall relationship).
+#'@examples oxygen_evol(example_fluorwin_data, example_oxygen_data, no_light_steps=11, time_step=60, calibration_file=NA)
 #'@export
 
 oxygen_evol<-function(fluorwin_filename, firesting_filename, no_light_steps, time_step=60, calibration_file=NA){
+
 
   ###############read in fluorwin .txt output to extract timings
   #of measurements and format them
