@@ -5,7 +5,8 @@
 \title{oxygen_evol.}
 \usage{
 oxygen_evol(fluorwin_filename, firesting_filename, no_light_steps,
-  time_step = 60, calibration_file = NA, data_output = F)
+  time_step = 60, calibration_file = NA, data_output = F,
+  end_respiration = F)
 }
 \arguments{
 \item{fluorwin_filename}{name of the fluorwin .txt file to process.}
@@ -23,6 +24,10 @@ so leave as NA if no specific calibration available.}
 
 \item{data_output}{logical (default FALSE), if TRUE dataframes produced are
 written to CSV and plots written to single .pdf file (see Values below)}
+
+\item{end_respiration}{logical (default FALSE), if TRUE function will perform
+an end respiration calculation using oxygen data from immediately after the
+final light step of the light curve over the duration set by time_step}
 }
 \value{
 oxy_results list containing the following two dataframes:

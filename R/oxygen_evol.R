@@ -47,6 +47,9 @@
 #'    so leave as NA if no specific calibration available.
 #'@param data_output logical (default FALSE), if TRUE dataframes produced are
 #'    written to CSV and plots written to single .pdf file (see Values below)
+#'@param end_respiration logical (default FALSE), if TRUE function will perform
+#'    an end respiration calculation using oxygen data from immediately after the
+#'    final light step of the light curve over the duration set by time_step
 #' @return oxy_results list containing the following two dataframes:
 #'   1. raw_oxygen dataframe containing the tidy outputs from the Firesting
 #'   optode (i.e. complete oxygen trace with formatted time columns).
@@ -76,7 +79,7 @@
 #'oxygen_evol(example_fluorwin_data, example_oxygen_data, no_light_steps=11, time_step=60, calibration_file=NA)
 #'@export
 
-oxygen_evol<-function(fluorwin_filename, firesting_filename, no_light_steps, time_step=60, calibration_file=NA, data_output=F){
+oxygen_evol<-function(fluorwin_filename, firesting_filename, no_light_steps, time_step=60, calibration_file=NA, data_output=F, end_respiration=F){
 
 
   ###############read in fluorwin .txt output to extract timings
@@ -89,6 +92,12 @@ oxygen_evol<-function(fluorwin_filename, firesting_filename, no_light_steps, tim
     f.times[,2] <- as.POSIXct(f.times[,2], format="%m/%d/%Y %I:%M:%S %p")
   }
   names(f.times)<-c('dataset', 'meas_time')
+
+  #add catch for end dark respiration assessment
+  if(end_respiration==T){
+    end.resp<-data.frame(dataset='end_resp_measurement', meas_time=f.times$meas_time[nrow(f.times)]+time_step)
+    f.times<-rbind(f.times, end.resp)
+  }
 
 
   #calculate time window for viewing oxygen based on user input
@@ -153,8 +162,15 @@ oxygen_evol<-function(fluorwin_filename, firesting_filename, no_light_steps, tim
   }#end of else
 
   #input into f.timees dataframe
+  if(end_respiration==F){
   f.times$voltage<-voltages$voltage
   f.times$par<-voltages$par
+  } else {
+    volt_append<-data.frame(step='end_resp',voltage=0, par=0)
+    voltages<-rbind(voltages, volt_append)
+    f.times$voltage<-voltages$voltage
+    f.times$par<-voltages$par
+  }
 
   #add a column of fluorwin output data filename into f.times for traceability.
   f.nam<-strsplit(fluorwin_filename, split='[.]')[[1]][1]
@@ -211,6 +227,9 @@ oxygen_evol<-function(fluorwin_filename, firesting_filename, no_light_steps, tim
   axis(3, labels=F, lwd.ticks = 0)
   text(f.times$meas_time-((f.times$meas_time-f.times$start)/2), max(m1$ch1_O2), labels=1:nrow(f.times))
 
+  if(end_respiration==T){
+    arrows(f.times$start.times[nrow(f.times)], 0,f.times$start.times[nrow(f.times)],400, length=0, lty=3)
+  }
   #make individual regression plots
 
   for(i in 1:nrow(f.times)){
@@ -237,14 +256,25 @@ oxygen_evol<-function(fluorwin_filename, firesting_filename, no_light_steps, tim
 
   #make plot of the oxygen data (slope) ~ light step, with PAR in background as
   #blue trace
+  if(end_respiration==T){
+    my.xlim=c(0,no_light_steps+1)
+    col<-c(rep('black',no_light_steps),'red')
+  } else {
+    my.xlim=c(0,no_light_steps)
+    col<-rep('black',no_light_steps)
+  }
   par(mar=c(3,3,1,3), mgp=c(1.6,0.4,0), tck=-0.01, las=1, xpd=F)
-  plot(f.times$light_step, f.times$slope, type='o', pch=19, ylab=expression(paste('Oxygen Evolution ( ',mu,'mol ',O[2],' ',l^-1,' ',s^-1,')')), xlab='Light Step', xlim=c(0,11))
+  plot(f.times$light_step, f.times$slope, type='o', pch=19, ylab=expression(paste('Oxygen Evolution ( ',mu,'mol ',O[2],' ',l^-1,' ',s^-1,')')), xlab='Light Step', xlim=my.xlim, col=col)
   arrows(0,0,nrow(f.times)+1,0,length=0, lty=3)
   par(new=T)
-  plot(f.times$light_step+0.11, f.times$par, type='S', lwd=4, col=addTrans('blue',50),yaxt='n', ylab='',xlab='', xaxt='n', cex.axis=0.8, xlim=c(0,11))
+  plot(f.times$light_step+0.11, f.times$par, type='S', lwd=4, col=addTrans('blue',50),yaxt='n', ylab='',xlab='', xaxt='n', cex.axis=0.8, xlim=my.xlim)
   axis(4, cex.axis=0.8)
   text(nrow(f.times)*1.11, (max(f.times$par)-(max(f.times$par)/2)), labels=expression(paste('PAR (',mu,'mol photons ', m^-2,' ',s^-1,')')),xpd=T, srt=-90, cex=1)
+  if(end_respiration==T){
+    legend('topleft', pch=c(19,NA,19), col=c('black',addTrans('blue',50),'red'), lty=1, legend=c('Oxygen Evol', 'PAR','End Respiration'), lwd=c(1,3), bty='n')
+  } else{
   legend('topleft', pch=c(19,NA), col=c('black',addTrans('blue',50)), lty=1, legend=c('Oxygen Evol', 'PAR'), lwd=c(1,3), bty='n')
+  }
 
 
   #plot of oxygen evolution (slope) ~ PAR (NB this is a scatter plot, so if using
@@ -260,14 +290,25 @@ oxygen_evol<-function(fluorwin_filename, firesting_filename, no_light_steps, tim
   #could be improved with a dev.copy command to reduce the code
   #make plot of the oxygen data (slope) ~ light step, with PAR in background as
   #blue trace
+  if(end_respiration==T){
+    my.xlim=c(0,no_light_steps+1)
+    col<-c(rep('black',no_light_steps),'red')
+  } else {
+    my.xlim=c(0,no_light_steps)
+    col<-rep('black',no_light_steps)
+  }
   par(mar=c(3,3,1,3), mgp=c(1.6,0.4,0), tck=-0.01, las=1, xpd=F)
-  plot(f.times$light_step, f.times$slope, type='o', pch=19, ylab=expression(paste('Oxygen Evolution ( ',mu,'mol ',O[2],' ',l^-1,' ',s^-1,')')), xlab='Light Step', xlim=c(0,11), cex.axis=0.6)
+  plot(f.times$light_step, f.times$slope, type='o', pch=19, ylab=expression(paste('Oxygen Evolution ( ',mu,'mol ',O[2],' ',l^-1,' ',s^-1,')')), xlab='Light Step', xlim=my.xlim, col=col)
   arrows(0,0,nrow(f.times)+1,0,length=0, lty=3)
   par(new=T)
-  plot(f.times$light_step+0.11, f.times$par, type='S', lwd=4, col=addTrans('blue',50),yaxt='n', ylab='',xlab='', xaxt='n', cex.axis=0.6, xlim=c(0,11))
-  axis(4, cex.axis=0.6)
+  plot(f.times$light_step+0.11, f.times$par, type='S', lwd=4, col=addTrans('blue',50),yaxt='n', ylab='',xlab='', xaxt='n', cex.axis=0.8, xlim=my.xlim)
+  axis(4, cex.axis=0.8)
   text(nrow(f.times)*1.11, (max(f.times$par)-(max(f.times$par)/2)), labels=expression(paste('PAR (',mu,'mol photons ', m^-2,' ',s^-1,')')),xpd=T, srt=-90, cex=1)
-  legend('topleft', pch=c(19,NA), col=c('black',addTrans('blue',50)), lty=1, legend=c('Oxygen Evol', 'PAR'), lwd=c(1,3), bty='n')
+  if(end_respiration==T){
+    legend('topleft', pch=c(19,NA,19), col=c('black',addTrans('blue',50),'red'), lty=1, legend=c('Oxygen Evol', 'PAR','End Respiration'), lwd=c(1,3), bty='n')
+  } else{
+    legend('topleft', pch=c(19,NA), col=c('black',addTrans('blue',50)), lty=1, legend=c('Oxygen Evol', 'PAR'), lwd=c(1,3), bty='n')
+  }
 
 
   #returns list including raw oxygen (processed and tidied fire sting data) and
@@ -277,6 +318,7 @@ oxygen_evol<-function(fluorwin_filename, firesting_filename, no_light_steps, tim
   oxy_results$matched_oxygen<-f.times
   oxy_results<<-oxy_results
   return(oxy_results)
+
 
   if(data_output==T){
     nam<-strsplit(firesting_filename, split='[.]')[[1]][1]
