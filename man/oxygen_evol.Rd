@@ -52,5 +52,9 @@ oxy_results list containing the following two dataframes:
 extract and match firesting oxygen data to FL3500 PSI fluorescence data.
 }
 \examples{
+To import example data, run the following code:
+
+example_fluorwin_data<-system.file("extdata", "example_fluorwin_data.txt", package = "OxygenEvol")
+example_oxygen_data<-system.file("extdata", "example_oxygen_data.txt", package = "OxygenEvol")
 oxygen_evol(example_fluorwin_data, example_oxygen_data, no_light_steps=11, time_step=60, calibration_file=NA)
 }
