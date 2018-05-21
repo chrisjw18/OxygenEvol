@@ -5,7 +5,7 @@
 \title{oxygen_evol.}
 \usage{
 oxygen_evol(fluorwin_filename, firesting_filename, no_light_steps,
-  time_step = 60, calibration_file = NA)
+  time_step = 60, calibration_file = NA, data_output = F)
 }
 \arguments{
 \item{fluorwin_filename}{name of the fluorwin .txt file to process.}
@@ -20,25 +20,33 @@ light step.}
 \item{calibration_file}{flashlet calibration file used to calculate PAR from
 voltages for FL3500 data. Generic calibration file is built into package
 so leave as NA if no specific calibration available.}
+
+\item{data_output}{logical (default FALSE), if TRUE dataframes produced are
+written to CSV and plots written to single .pdf file (see Values below)}
 }
 \value{
-raw_oxygen dataframe containing the tidy outputs from the Firesting
+oxy_results list containing the following two dataframes:
+  1. raw_oxygen dataframe containing the tidy outputs from the Firesting
   optode (i.e. complete oxygen trace with formatted time columns).
-
-  matched_oxygen dataframe containing the FL3500 light step with matched
+  2. matched_oxygen dataframe containing the FL3500 light step with matched
   calculated rate of oxygen evolution (units of umol s-1), with columns
   showing voltage and PAR levels per light step
 
-  a single pdf document (taking its name from the oxygen data input filename)
-  showing i) complete oxygen trace with grey areas
-  highlighting which sections have been clipped and matched to fluorescence
-  data (As determined by the time_step selected), ii) individual plots of each
-  linear regression for oxygen evolution calculation, iii) calculated oxygen
-  evolution ~ light step over the course of the light curve, iv) scatter plot
-  of oxygen evolution ~ PAR (if a sequential light curve is used this will
-  show the oxygen evolution over the course of the light curve, if a non
-  -sequential
-  light curve was used this will show the overall relationship).
+  If data_output = TRUE:
+  x2 CSV files of raw_oxygen and matched_oxygen datasets appended with oxygen
+  datafile name
+
+  AND
+
+  .pdf document appended with oxygen datafile name showing:
+  1. complete oxygen trace with grey areas highlighting which sections have
+  been clipped and matched to fluorescence data (As determined by the
+  time_step selected)
+  2. individual plots of each linear regression for oxygen evolution
+  calculations
+  3. calculated oxygen evolution ~ light step over the course of the light
+  curve with PAR levels shown in blue trace in brackground
+  4. scatter plot of oxygen evolution ~ PAR
 }
 \description{
 extract and match firesting oxygen data to FL3500 PSI fluorescence data.
