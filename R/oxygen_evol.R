@@ -76,7 +76,7 @@
 #'
 #'example_fluorwin_data<-system.file("extdata", "example_fluorwin_data.txt", package = "OxygenEvol")
 #'example_oxygen_data<-system.file("extdata", "example_oxygen_data.txt", package = "OxygenEvol")
-#'oxygen_evol(example_fluorwin_data, example_oxygen_data, no_light_steps=11, time_step=60, calibration_file=NA)
+#'oxygen_evol(example_fluorwin_data, example_oxygen_data, no_light_steps=11, time_step=60, calibration_file=NA, data_output=F, end_respiration = T)
 #'@export
 
 oxygen_evol<-function(fluorwin_filename, firesting_filename, no_light_steps, time_step=60, calibration_file=NA, data_output=F, end_respiration=F){
