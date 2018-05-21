@@ -251,6 +251,21 @@ oxygen_evol<-function(fluorwin_filename, firesting_filename, no_light_steps, tim
   #turn off pdf catcher.
   dev.off()
   }
+
+  #print the main matched oxygen plot to the screen regarless of data_output
+  #could be improved with a dev.copy command to reduce the code
+  #make plot of the oxygen data (slope) ~ light step, with PAR in background as
+  #blue trace
+  par(mar=c(3,3,1,3), mgp=c(1.6,0.4,0), tck=-0.01, las=1, xpd=F)
+  plot(f.times$light_step, f.times$slope, type='o', pch=19, ylab=expression(paste('Oxygen Evolution ( ',mu,'mol ',O[2],' ',l^-1,' ',s^-1,')')), xlab='Light Step', xlim=c(0,11), cex.axis=0.6)
+  arrows(0,0,nrow(f.times)+1,0,length=0, lty=3)
+  par(new=T)
+  plot(f.times$light_step+0.11, f.times$par, type='S', lwd=4, col=addTrans('blue',50),yaxt='n', ylab='',xlab='', xaxt='n', cex.axis=0.6, xlim=c(0,11))
+  axis(4, cex.axis=0.6)
+  text(nrow(f.times)*1.11, (max(f.times$par)-(max(f.times$par)/2)), labels=expression(paste('PAR (',mu,'mol photons ', m^-2,' ',s^-1,')')),xpd=T, srt=-90, cex=1)
+  legend('topleft', pch=c(19,NA), col=c('black',addTrans('blue',50)), lty=1, legend=c('Oxygen Evol', 'PAR'), lwd=c(1,3), bty='n')
+
+
   #returns list including raw oxygen (processed and tidied fire sting data) and
   #matched_oxygen (FL3500 measurements matched to oxygen slope)
   oxy_results<-list()
