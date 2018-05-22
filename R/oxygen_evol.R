@@ -199,8 +199,9 @@ oxygen_evol<-function(fluorwin_filename, firesting_filename, no_light_steps, tim
     x0<-f.times$start.times[i]
     x1<-f.times[i,2]
 
-    y<-m1$ch1_O2[which(m1$o.time==x0):which(m1$o.time==x1)]
-    x<-m1$time_s[which(m1$o.time==x0):which(m1$o.time==x1)]
+    y<-m1$ch1_O2[which(abs(m1$o.time-x0)==min(abs(m1$o.time-x0))):which(abs(m1$o.time-x1)==min(abs(m1$o.time-x1)))]
+
+    x<-m1$time_s[which(abs(m1$o.time-x0)==min(abs(m1$o.time-x0))):which(abs(m1$o.time-x1)==min(abs(m1$o.time-x1)))]
 
     my.lm<-lm(y~x)
 
@@ -236,8 +237,11 @@ oxygen_evol<-function(fluorwin_filename, firesting_filename, no_light_steps, tim
     x0<-f.times$start.times[i]
     x1<-f.times[i,2]
 
-    y<-m1$ch1_O2[which(m1$o.time==x0):which(m1$o.time==x1)]
-    x<-m1$time_s[which(m1$o.time==x0):which(m1$o.time==x1)]
+    y<-m1$ch1_O2[which(abs(m1$o.time-x0)==min(abs(m1$o.time-x0))):which(abs(m1$o.time-x1)==min(abs(m1$o.time-x1)))]
+
+    x<-m1$time_s[which(abs(m1$o.time-x0)==min(abs(m1$o.time-x0))):which(abs(m1$o.time-x1)==min(abs(m1$o.time-x1)))]
+    #y<-m1$ch1_O2[which(m1$o.time==x0):which(m1$o.time==x1)]
+    #x<-m1$time_s[which(m1$o.time==x0):which(m1$o.time==x1)]
 
     my.lm<-lm(y~x)
 
